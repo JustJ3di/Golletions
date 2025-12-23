@@ -38,6 +38,10 @@ func New[T Key]() *RBtree[T] {
 	return &RBtree[T]{root: nil}
 }
 
+func (rb *RBtree[T]) Clear() {
+	rb.root = nil
+}
+
 func (rb *RBtree[T]) Search(k T) *rbnode[T] {
 	curr := rb.root
 	for curr != nil && k != curr.key {
