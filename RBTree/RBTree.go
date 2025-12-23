@@ -3,7 +3,10 @@ package rbtree
 import "fmt"
 
 type Key interface {
-	uint8 | uint16 | uint32 | uint64 | int8 | int16 | int32 | int64
+	~int | ~int8 | ~int16 | ~int32 | ~int64 |
+		~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~uintptr |
+		~float32 | ~float64 |
+		~string
 }
 
 type color byte
@@ -61,7 +64,8 @@ func (n *rbnode[T]) Key() T {
 	if n != nil {
 		return n.key
 	}
-	return 0
+	var nofoud T
+	return nofoud
 
 }
 
