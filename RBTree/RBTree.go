@@ -9,11 +9,11 @@ type Key interface {
 		~string
 }
 
-type color byte
+type color bool
 
 const (
-	red color = iota
-	black
+	red   color = false
+	black color = true
 )
 
 type rbnode[T Key] struct {
@@ -23,50 +23,11 @@ type rbnode[T Key] struct {
 	parent, left, right *rbnode[T]
 }
 
-//class of function for get element.
-
-func (n *rbnode[T]) Left() *rbnode[T] {
-	if n != nil {
-		return n.left
-	}
-	return nil
-}
-
-func (n *rbnode[T]) Right() *rbnode[T] {
-	if n != nil {
-		return n.right
-	}
-	return nil
-}
-
-func (n *rbnode[T]) Parent() *rbnode[T] {
-	if n != nil {
-		return n.parent
-	}
-	return nil
-}
-
 func (n *rbnode[T]) Grandparent() *rbnode[T] {
 	if n != nil {
 		return n.parent.parent
 	}
 	return nil
-}
-
-func (n *rbnode[T]) Value() any {
-	if n != nil {
-		return n.value
-	}
-	return nil
-}
-
-func (n *rbnode[T]) Key() T {
-	if n != nil {
-		return n.key
-	}
-	var nofoud T
-	return nofoud
-
 }
 
 type RBtree[T Key] struct {
