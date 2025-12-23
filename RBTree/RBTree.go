@@ -88,6 +88,12 @@ func (rb *RBtree[T]) Search(k T) *rbnode[T] {
 	}
 	return curr
 }
+func (rb *RBtree[T]) SearchValue(k T) any {
+	if n := rb.Search(k); n != nil {
+		return n.value
+	}
+	return nil
+}
 
 func (rb *RBtree[T]) InsertKeyValue(k T, v any) {
 
