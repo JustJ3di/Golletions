@@ -45,10 +45,10 @@ The key must satisfy the `Key` interface (ordered, comparable types such as `int
 package main
 
 import (
-    "fmt"
-    "github.com/yourusername/golletions/rbtree"
-)
+	"fmt"
 
+	rbtree "github.com/JustJ3di/Golletions/RBTree"
+)
 func main() {
     tree := rbtree.New[int]()
 
