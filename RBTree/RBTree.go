@@ -62,7 +62,7 @@ func (rb *RBtree[T]) Search(k T) any {
 	return nil
 }
 
-func (rb *RBtree[T]) InsertKeyValue(k T, v any) {
+func (rb *RBtree[T]) Insert(k T, v any) {
 
 	n := &rbnode[T]{
 		parent: nil,
@@ -72,11 +72,11 @@ func (rb *RBtree[T]) InsertKeyValue(k T, v any) {
 		key:    k,
 		value:  v,
 	}
-	rb.Insert(n)
+	rb.insert(n)
 
 }
 
-func (rb *RBtree[T]) Insert(n *rbnode[T]) {
+func (rb *RBtree[T]) insert(n *rbnode[T]) {
 	if try := rb.search(n.key); try != nil {
 		try.value = n.value
 	} else if rb.root == nil {
