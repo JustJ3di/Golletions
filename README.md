@@ -32,45 +32,6 @@ go get github.com/yourusername/golletions
 - **Key Support**  
   Supports standard ordered types (`int`, `uint`, `float`, `string`) via a custom constraints interface.
 
----
-
-## 🛠 Usage
-
-### Red-Black Tree (`RBtree`)
-
-The `RBtree` allows you to store values associated with a key.  
-The key must satisfy the `Key` interface (ordered, comparable types such as `int`, `float`, or `string`).
-
-```go
-package main
-
-import (
-	"fmt"
-
-	rbtree "github.com/JustJ3di/Golletions/RBTree"
-)
-func main() {
-    tree := rbtree.New[int]()
-
-    tree.InsertKeyValue(10, "Apple")
-    tree.InsertKeyValue(5,  "Banana")
-    tree.InsertKeyValue(20, "Cherry")
-
-    val := tree.Search(10)
-    fmt.Printf("Key 10: %v\n", val)
-
-    fmt.Printf("Min: %v\n", tree.Min())
-    fmt.Printf("Max: %v\n", tree.Max())
-
-    deleted := tree.Delete(5)
-    if deleted {
-        fmt.Println("Key 5 deleted successfully.")
-    }
-
-    fmt.Println("Current Tree State:")
-    tree.PrintInOrder()
-}
-```
 
 ---
 
