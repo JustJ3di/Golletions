@@ -1,6 +1,8 @@
 package rbtree
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Key interface {
 	~int | ~int8 | ~int16 | ~int32 | ~int64 |
@@ -23,7 +25,7 @@ type rbnode[T Key] struct {
 	parent, left, right *rbnode[T]
 }
 
-func (n *rbnode[T]) Grandparent() *rbnode[T] {
+func (n *rbnode[T]) grandparent() *rbnode[T] {
 	if n != nil {
 		return n.parent.parent
 	}
@@ -53,7 +55,7 @@ func (rb *RBtree[T]) search(k T) *rbnode[T] {
 	}
 	return curr
 }
-func (rb *RBtree[T]) SearchValue(k T) any {
+func (rb *RBtree[T]) Search(k T) any {
 	if n := rb.search(k); n != nil {
 		return n.value
 	}
@@ -150,42 +152,58 @@ func (rb *RBtree[T]) leftRotate(n *rbnode[T]) {
 
 func (rb *RBtree[T]) fix(n *rbnode[T]) {
 	for n != rb.root && n.parent.col == red {
-		if n.parent == n.Grandparent().left {
-			u := n.Grandparent().right //uncle
+		if n.parent == n.grandparent().left {
+			u := n.grandparent().right //uncle
 			if u != nil && u.col == red {
 				n.parent.col = black
 				u.col = black
-				n.Grandparent().col = red
-				n = n.Grandparent()
+				n.grandparent().col = red
+				n = n.grandparent()
 			} else {
 				if n == n.parent.right {
 					n = n.parent
 					rb.leftRotate(n)
 				}
 				n.parent.col = black
-				n.Grandparent().col = red
-				rb.rightRotate(n.Grandparent())
+				n.grandparent().col = red
+				rb.rightRotate(n.grandparent())
 			}
 		} else {
-			u := n.Grandparent().left //uncle
+			u := n.grandparent().left //uncle
 			if u != nil && u.col == red {
 				n.parent.col = black
 				u.col = black
-				n.Grandparent().col = red
-				n = n.Grandparent()
+				n.grandparent().col = red
+				n = n.grandparent()
 			} else {
 				if n == n.parent.left {
 					n = n.parent
 					rb.rightRotate(n)
 				}
 				n.parent.col = black
-				n.Grandparent().col = red
-				rb.leftRotate(n.Grandparent())
+				n.grandparent().col = red
+				rb.leftRotate(n.grandparent())
 			}
 		}
 
 	}
 	rb.root.col = black
+}
+
+func (rb *RBtree[T]) Min() any {
+	curr := rb.root
+	for curr.left != nil {
+		curr = curr.left
+	}
+	return curr.value
+}
+
+func (rb *RBtree[T]) Max() any {
+	curr := rb.root
+	for curr.right != nil {
+		curr = curr.right
+	}
+	return curr.value
 }
 
 func (rb *RBtree[T]) PrintInOrder() {
@@ -209,10 +227,160 @@ func (rb *RBtree[T]) orderedPrintRecursive(n *rbnode[T]) {
 
 }
 
+func (rb *RBtree[T]) transplant(u, v *rbnode[T]) {
+	if u.parent == nil {
+		rb.root = v
+	} else if u == u.parent.left {
+		u.parent.left = v
+	} else {
+		u.parent.right = v
+	}
+	if v != nil {
+		v.parent = u.parent
+	}
+}
+
+/*
+Delete a RBnode.
+Follow the clrs algorithm
+*/
 func (rb *RBtree[T]) Delete(k T) bool {
-	if rb.search(k) == nil {
-		return false //No node found
+
+	min := func(n *rbnode[T]) *rbnode[T] {
+		for n.left != nil {
+			n = n.left
+		}
+		return n
+	}
+
+	z := rb.search(k)
+	if z == nil {
+		return false // No node found
+	}
+
+	var x *rbnode[T]
+	y := z
+	yOriginalColor := y.col
+
+	// We need to track x's parent explicitly because if x is nil,
+	// we cannot access x.parent in the fixup function.
+	var xParent *rbnode[T]
+
+	if z.left == nil {
+		x = z.right
+		xParent = z.parent // x replaces z, so its parent becomes z's parent
+		rb.transplant(z, z.right)
+	} else if z.right == nil {
+		x = z.left
+		xParent = z.parent
+		rb.transplant(z, z.left)
+	} else {
+		y = min(z.right)
+		yOriginalColor = y.col
+		x = y.right
+
+		if y.parent == z {
+			xParent = y // x is the child of y
+		} else {
+			xParent = y.parent // x was y's child
+			rb.transplant(y, y.right)
+			y.right = z.right
+			y.right.parent = y
+		}
+
+		rb.transplant(z, y)
+		y.left = z.left
+		y.left.parent = y
+		y.col = z.col
+	}
+
+	if yOriginalColor == black {
+		rb.deleteFixup(x, xParent)
 	}
 
 	return true
+}
+
+func (rb *RBtree[T]) deleteFixup(n, parent *rbnode[T]) {
+
+	for n != rb.root && (n == nil || n.col == black) {
+		if n == parent.left {
+			w := parent.right // Sibling
+
+			// Case 1: Sibling is Red
+			if w.col == red {
+				w.col = black
+				parent.col = red
+				rb.leftRotate(parent)
+				w = parent.right
+			}
+
+			// Case 2: Sibling's children are both Black (or nil)
+			if (w.left == nil || w.left.col == black) && (w.right == nil || w.right.col == black) {
+				w.col = red
+				n = parent
+				parent = n.parent
+			} else {
+				// Case 3: Sibling's right child is Black (Left is Red)
+				if w.right == nil || w.right.col == black {
+					if w.left != nil {
+						w.left.col = black
+					}
+					w.col = red
+					rb.rightRotate(w)
+					w = parent.right
+				}
+
+				// Case 4: Sibling's right child is Red
+				w.col = parent.col
+				parent.col = black
+				if w.right != nil {
+					w.right.col = black
+				}
+				rb.leftRotate(parent)
+				n = rb.root // Terminate
+			}
+		} else {
+			// Mirror images of the cases above (n is a right child)
+			w := parent.left
+
+			// Case 1 (Mirror)
+			if w.col == red {
+				w.col = black
+				parent.col = red
+				rb.rightRotate(parent)
+				w = parent.left
+			}
+
+			// Case 2 (Mirror)
+			if (w.right == nil || w.right.col == black) && (w.left == nil || w.left.col == black) {
+				w.col = red
+				n = parent
+				parent = n.parent
+			} else {
+				// Case 3 (Mirror)
+				if w.left == nil || w.left.col == black {
+					if w.right != nil {
+						w.right.col = black
+					}
+					w.col = red
+					rb.leftRotate(w)
+					w = parent.left
+				}
+
+				// Case 4 (Mirror)
+				w.col = parent.col
+				parent.col = black
+				if w.left != nil {
+					w.left.col = black
+				}
+				rb.rightRotate(parent)
+				n = rb.root // Terminate
+			}
+		}
+	}
+
+	if n != nil {
+		n.col = black
+	}
 }
