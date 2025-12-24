@@ -42,7 +42,7 @@ func (rb *RBtree[T]) Clear() {
 	rb.root = nil
 }
 
-func (rb *RBtree[T]) Search(k T) *rbnode[T] {
+func (rb *RBtree[T]) search(k T) *rbnode[T] {
 	curr := rb.root
 	for curr != nil && k != curr.key {
 		if k > curr.key {
@@ -54,7 +54,7 @@ func (rb *RBtree[T]) Search(k T) *rbnode[T] {
 	return curr
 }
 func (rb *RBtree[T]) SearchValue(k T) any {
-	if n := rb.Search(k); n != nil {
+	if n := rb.search(k); n != nil {
 		return n.value
 	}
 	return nil
@@ -75,7 +75,7 @@ func (rb *RBtree[T]) InsertKeyValue(k T, v any) {
 }
 
 func (rb *RBtree[T]) Insert(n *rbnode[T]) {
-	if try := rb.Search(n.key); try != nil {
+	if try := rb.search(n.key); try != nil {
 		try.value = n.value
 	} else if rb.root == nil {
 		rb.root = n
@@ -209,8 +209,8 @@ func (rb *RBtree[T]) orderedPrintRecursive(n *rbnode[T]) {
 
 }
 
-func (rb *RBtree[T]) delete(k T) bool {
-	if rb.Search(k) == nil {
+func (rb *RBtree[T]) Delete(k T) bool {
+	if rb.search(k) == nil {
 		return false //No node found
 	}
 
