@@ -35,22 +35,6 @@ go get github.com/yourusername/golletions
 
 ---
 
-## 📚 API Reference
-
-### `RBtree[T]`
-
-| Method | Description | Complexity |
-|------|------------|------------|
-| `New[T]()` | Creates a new empty Red-Black Tree | `O(1)` |
-| `Insert(k T, v any)` | Inserts a new key-value pair | `O(log n)` |
-| `Delete(k T)` | Removes the node with the specified key | `O(log n)` |
-| `Search(k T)` | Returns the value associated with key `k` | `O(log n)` |
-| `Min()` | Returns the value of the minimum key | `O(log n)` |
-| `Max()` | Returns the value of the maximum key | `O(log n)` |
-| `Clear()` | Removes all nodes from the tree | `O(1)` |
-
----
-
 ## 🗺 Roadmap
 
 - [x] Red-Black Tree  

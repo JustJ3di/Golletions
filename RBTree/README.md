@@ -33,9 +33,6 @@ func main() {
     tree.PrintInOrder()
 }
 ```
-
----
-
 ## 📚 API Reference
 
 ### `RBtree[T]`
@@ -43,7 +40,7 @@ func main() {
 | Method | Description | Complexity |
 |------|------------|------------|
 | `New[T]()` | Creates a new empty Red-Black Tree | `O(1)` |
-| `InsertKeyValue(k T, v any)` | Inserts a new key-value pair | `O(log n)` |
+| `Insert(k T, v any)` | Inserts a new key-value pair | `O(log n)` |
 | `Delete(k T)` | Removes the node with the specified key | `O(log n)` |
 | `Search(k T)` | Returns the value associated with key `k` | `O(log n)` |
 | `Min()` | Returns the value of the minimum key | `O(log n)` |
