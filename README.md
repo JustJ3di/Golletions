@@ -40,7 +40,7 @@ go get github.com/yourusername/golletions
 - [x] Red-Black Tree  
 - [ ] AVL Tree  
 - [ ] Graph (Adjacency List / Matrix)  
-- [ ] Trie (Prefix Tree)  
+- [x] Trie (Prefix Tree)  
 - [ ] BTree and B+Tree
 
 ---
