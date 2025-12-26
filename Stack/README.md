@@ -17,6 +17,7 @@ You can simply copy the `stack.go` file into your project, or import it if hoste
 
 ```bash
 go get [github.com/JustJ3di/Golletions/Stack](https://github.com/JustJ3di/Golletions/Stack)
+```
 
 ## 📖 Usage
 
