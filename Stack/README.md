@@ -32,7 +32,7 @@ import (
 
 func main() {
     // 1. Initialize (returns the Stack interface)
-    s := stack.NewStack()
+    s := stack.NewStack[string]()
 
     // 2. Push items (LIFO order)
     s.Push("First")

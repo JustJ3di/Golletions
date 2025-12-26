@@ -5,29 +5,29 @@ import (
 	"sync"
 )
 
-type Stack interface {
-	Push(val any)
-	Pop() (any, error)
+type Stack[T any] interface {
+	Push(val T)
+	Pop() (T, error)
 }
 
-type threadSafeStack struct {
-	data []any
+type threadSafeStack[T any] struct {
+	data []T
 	mu   sync.RWMutex
 }
 
-func (s *threadSafeStack) Push(val any) {
+func (s *threadSafeStack[T]) Push(val T) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	s.data = append(s.data, val)
 }
 
-func (s *threadSafeStack) Pop() (any, error) {
+func (s *threadSafeStack[T]) Pop() (T, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-
+	var zero T
 	if len(s.data) == 0 {
-		return nil, errors.New("stack is empty")
+		return zero, errors.New("stack is empty")
 	}
 
 	lastIndex := len(s.data) - 1
@@ -37,6 +37,6 @@ func (s *threadSafeStack) Pop() (any, error) {
 	return element, nil
 }
 
-func NewStack() Stack {
-	return &threadSafeStack{}
+func NewStack[T any]() Stack[T] {
+	return &threadSafeStack[T]{}
 }
