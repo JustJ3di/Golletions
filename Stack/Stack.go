@@ -15,6 +15,7 @@ type threadSafeStack[T any] struct {
 	mu   sync.RWMutex
 }
 
+// Push a value on top of the Stack
 func (s *threadSafeStack[T]) Push(val T) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -22,6 +23,7 @@ func (s *threadSafeStack[T]) Push(val T) {
 	s.data = append(s.data, val)
 }
 
+// Pop value from top of the stack, if stack is empty return error.
 func (s *threadSafeStack[T]) Pop() (T, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
