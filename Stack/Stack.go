@@ -8,6 +8,7 @@ import (
 type Stack[T any] interface {
 	Push(val T)
 	Pop() (T, error)
+	Empty() bool
 }
 
 type threadSafeStack[T any] struct {
