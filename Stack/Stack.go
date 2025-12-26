@@ -37,6 +37,10 @@ func (s *threadSafeStack[T]) Pop() (T, error) {
 	return element, nil
 }
 
+func (s *threadSafeStack[T]) Empty() bool {
+	return len(s.data) == 0
+}
+
 func NewStack[T any]() Stack[T] {
 	return &threadSafeStack[T]{}
 }
