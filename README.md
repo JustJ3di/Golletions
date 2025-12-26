@@ -12,7 +12,7 @@ Currently, the library provides a robust implementation of a **Red-Black Tree**,
 ## 🚀 Installation
 
 ```bash
-go get github.com/yourusername/golletions
+go get github.com/JustJ3di/golletions
 ```
 
 ---
