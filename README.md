@@ -42,5 +42,6 @@ go get github.com/yourusername/golletions
 - [ ] Graph (Adjacency List / Matrix)  
 - [x] Trie (Prefix Tree)  
 - [ ] BTree and B+Tree
+- [x] Stack (Thread-safe)
 
 ---
