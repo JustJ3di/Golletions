@@ -75,6 +75,9 @@ func (zl *Ziplist) Push(value any) error {
 	case int32:
 		zl.bytes = append(zl.bytes, TYPE_INT32)
 		zl.bytes = binary.LittleEndian.AppendUint32(zl.bytes, uint32(v))
+	case int64:
+		zl.bytes = append(zl.bytes, TYPE_INT64)
+		zl.bytes = binary.LittleEndian.AppendUint64(zl.bytes, uint64(v))
 
 	case float64:
 		zl.bytes = append(zl.bytes, TYPE_FLOAT64)
