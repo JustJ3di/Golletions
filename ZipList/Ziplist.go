@@ -110,6 +110,11 @@ func (zl *Ziplist) Push(value any) error {
 	return nil
 }
 
+func (zl *Ziplist) Clear() {
+	zl = nil
+	zl = New(1024)
+}
+
 func (zl *Ziplist) updateHeader() {
 	// Offset 0: TYPE_TOTAL_BYTE (1 byte)
 	// Offset 1: Total Byte (4 byte)
