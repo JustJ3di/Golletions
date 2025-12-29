@@ -52,6 +52,86 @@ func New(capacity uint32) *Ziplist {
 	return zl
 }
 
+func (zl *Ziplist) getElementSize(offset int) (int, error) {
+	if offset >= len(zl.bytes) {
+		return 0, fmt.Errorf("out of bounds")
+	}
+
+	typ := zl.bytes[offset]
+
+	switch typ {
+	case TYPE_END:
+		return 0, nil
+
+	case TYPE_UINT8, TYPE_INT8, TYPE_BOOL:
+		return 1 + 1, nil
+	case TYPE_UINT16, TYPE_INT16:
+		return 1 + 2, nil
+	case TYPE_UINT32, TYPE_INT32, TYPE_FLOAT32:
+		return 1 + 4, nil
+	case TYPE_UINT64, TYPE_INT64, TYPE_FLOAT64:
+		return 1 + 8, nil
+
+	case TYPE_STRING:
+
+		if offset+5 > len(zl.bytes) {
+			return 0, fmt.Errorf("malformed string header")
+		}
+		strLen := binary.LittleEndian.Uint32(zl.bytes[offset+1 : offset+5])
+		return 1 + 4 + int(strLen), nil
+
+	default:
+		return 0, fmt.Errorf("unknown type: %x", typ)
+	}
+}
+
+func (zl *Ziplist) Remove(index int) error {
+
+	countIdx := 6
+	currentCount := binary.LittleEndian.Uint32(zl.bytes[countIdx : countIdx+4])
+
+	if index < 0 || uint32(index) >= currentCount {
+		return fmt.Errorf("index out of range")
+	}
+
+	currentPos := 10
+
+	for i := 0; i < index; i++ {
+		size, err := zl.getElementSize(currentPos)
+		if err != nil {
+			return err
+		}
+		currentPos += size
+	}
+
+	sizeToRemove, err := zl.getElementSize(currentPos)
+	if err != nil {
+		return err
+	}
+
+	copy(zl.bytes[currentPos:], zl.bytes[currentPos+sizeToRemove:])
+
+	zl.bytes = zl.bytes[:len(zl.bytes)-sizeToRemove]
+
+	binary.LittleEndian.PutUint32(zl.bytes[countIdx:countIdx+4], currentCount-1)
+
+	totalLenIdx := 1
+	binary.LittleEndian.PutUint32(zl.bytes[totalLenIdx:totalLenIdx+4], uint32(len(zl.bytes)))
+
+	return nil
+}
+
+func (zl *Ziplist) Clear() {
+	zl.bytes = zl.bytes[:0]
+	zl.bytes = append(zl.bytes, TYPE_TOTAL_BYTE)
+	zl.bytes = binary.LittleEndian.AppendUint32(zl.bytes, 0)
+	zl.bytes = append(zl.bytes, TYPE_LEN)
+	zl.bytes = binary.LittleEndian.AppendUint32(zl.bytes, 0)
+	zl.bytes = append(zl.bytes, TYPE_END)
+	currentLen := uint32(len(zl.bytes))
+	binary.LittleEndian.PutUint32(zl.bytes[1:5], currentLen)
+}
+
 func (zl *Ziplist) Push(value any) error {
 
 	if len(zl.bytes) > 0 && zl.bytes[len(zl.bytes)-1] == TYPE_END {
@@ -75,9 +155,6 @@ func (zl *Ziplist) Push(value any) error {
 	case int32:
 		zl.bytes = append(zl.bytes, TYPE_INT32)
 		zl.bytes = binary.LittleEndian.AppendUint32(zl.bytes, uint32(v))
-	case int64:
-		zl.bytes = append(zl.bytes, TYPE_INT64)
-		zl.bytes = binary.LittleEndian.AppendUint64(zl.bytes, uint64(v))
 
 	case float64:
 		zl.bytes = append(zl.bytes, TYPE_FLOAT64)
@@ -108,11 +185,6 @@ func (zl *Ziplist) Push(value any) error {
 	zl.updateHeader()
 
 	return nil
-}
-
-func (zl *Ziplist) Clear() {
-	zl = nil
-	zl = New(1024)
 }
 
 func (zl *Ziplist) updateHeader() {
