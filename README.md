@@ -43,5 +43,6 @@ go get github.com/JustJ3di/golletions
 - [x] Trie (Prefix Tree)  
 - [ ] BTree and B+Tree
 - [x] Stack (Thread-safe)
+- [x] Ziplist
 
 ---
