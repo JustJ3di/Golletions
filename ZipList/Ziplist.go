@@ -187,6 +187,98 @@ func (zl *Ziplist) Push(value any) error {
 	return nil
 }
 
+// At returns the value at the given index.
+// It returns an error if the index is out of bounds.
+func (zl *Ziplist) At(index int) (any, error) {
+	// 1. Read the current number of items from the header (bytes 6-10)
+	countIdx := 6
+	if len(zl.bytes) < 10 {
+		return nil, fmt.Errorf("ziplist is empty or malformed")
+	}
+	currentCount := binary.LittleEndian.Uint32(zl.bytes[countIdx : countIdx+4])
+
+	// 2. Bounds Check
+	if index < 0 || uint32(index) >= currentCount {
+		return nil, fmt.Errorf("index out of range")
+	}
+
+	// 3. Traverse the list to find the start offset of the requested index
+	// Start after the header (10 bytes)
+	cursor := 10
+	for i := 0; i < index; i++ {
+		size, err := zl.getElementSize(cursor)
+		if err != nil {
+			return nil, err
+		}
+		cursor += size
+	}
+
+	// 4. Decode the value at the current cursor
+	if cursor >= len(zl.bytes) {
+		return nil, fmt.Errorf("cursor out of bounds")
+	}
+
+	typ := zl.bytes[cursor]
+	// Advance cursor past the type byte
+	dataStart := cursor + 1
+
+	switch typ {
+	case TYPE_UINT8:
+		return zl.bytes[dataStart], nil
+
+	case TYPE_UINT16:
+		return binary.LittleEndian.Uint16(zl.bytes[dataStart : dataStart+2]), nil
+
+	case TYPE_UINT32:
+		return binary.LittleEndian.Uint32(zl.bytes[dataStart : dataStart+4]), nil
+
+	case TYPE_UINT64:
+		return binary.LittleEndian.Uint64(zl.bytes[dataStart : dataStart+8]), nil
+
+	case TYPE_INT8:
+		// Go doesn't have a direct LittleEndian.Uint8, just cast the byte
+		return int8(zl.bytes[dataStart]), nil
+
+	case TYPE_INT16:
+		return int16(binary.LittleEndian.Uint16(zl.bytes[dataStart : dataStart+2])), nil
+
+	case TYPE_INT32:
+		return int32(binary.LittleEndian.Uint32(zl.bytes[dataStart : dataStart+4])), nil
+
+	case TYPE_INT64:
+		return int64(binary.LittleEndian.Uint64(zl.bytes[dataStart : dataStart+8])), nil
+
+	case TYPE_FLOAT32:
+		bits := binary.LittleEndian.Uint32(zl.bytes[dataStart : dataStart+4])
+		return math.Float32frombits(bits), nil
+
+	case TYPE_FLOAT64:
+		bits := binary.LittleEndian.Uint64(zl.bytes[dataStart : dataStart+8])
+		return math.Float64frombits(bits), nil
+
+	case TYPE_BOOL:
+		val := zl.bytes[dataStart]
+		return val == 1, nil
+
+	case TYPE_STRING:
+		// String format: [Type] [Len (4 bytes)] [String Data]
+		strLen := binary.LittleEndian.Uint32(zl.bytes[dataStart : dataStart+4])
+		strBodyStart := dataStart + 4
+		strBodyEnd := strBodyStart + int(strLen)
+
+		if strBodyEnd > len(zl.bytes) {
+			return nil, fmt.Errorf("malformed string length")
+		}
+		return string(zl.bytes[strBodyStart:strBodyEnd]), nil
+
+	case TYPE_END:
+		return nil, fmt.Errorf("accessed end of list unexpectedly")
+
+	default:
+		return nil, fmt.Errorf("unknown type at index %d: %x", index, typ)
+	}
+}
+
 func (zl *Ziplist) updateHeader() {
 	// Offset 0: TYPE_TOTAL_BYTE (1 byte)
 	// Offset 1: Total Byte (4 byte)
