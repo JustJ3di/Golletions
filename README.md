@@ -44,5 +44,6 @@ go get github.com/JustJ3di/Golletions
 - [ ] BTree and B+Tree
 - [x] Stack (Thread-safe)
 - [x] Ziplist
+- [x] Vector
 
 ---
