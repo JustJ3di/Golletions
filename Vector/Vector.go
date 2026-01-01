@@ -69,6 +69,22 @@ func (v *Vector[T]) Capacity() uint64 {
 	return v.cap
 }
 
+func (v *Vector[T]) Front() T {
+	var zero T
+	if v.len == 0 {
+		return zero
+	}
+	return v.At(0)
+}
+
+func (v *Vector[T]) Back() T {
+	var zero T
+	if v.len == 0 {
+		return zero
+	}
+	return v.At(v.len)
+}
+
 func (v *Vector[T]) PopBack() {
 	if v.len == 0 {
 		return
