@@ -29,9 +29,9 @@ func (v *Vector[T]) grow(newCap uint64) {
 	if v.ptr != nil {
 		for i := uint64(0); i < v.len; i++ {
 
-			src := unsafe.Pointer(uintptr(v.ptr) + (uintptr(i) * elementSize))
+			src := unsafe.Add(v.ptr, (uintptr(i) * elementSize))
 
-			dst := unsafe.Pointer(uintptr(newPtr) + (uintptr(i) * elementSize))
+			dst := unsafe.Add(newPtr, (uintptr(i) * elementSize))
 
 			*(*T)(dst) = *(*T)(src)
 		}
@@ -54,7 +54,7 @@ func (v *Vector[T]) PushBack(value T) {
 	elementSize := unsafe.Sizeof(value)
 	offset := uintptr(v.len) * elementSize
 
-	targetAddr := unsafe.Pointer(uintptr(v.ptr) + offset)
+	targetAddr := unsafe.Add(v.ptr, offset)
 
 	*(*T)(targetAddr) = value
 
@@ -93,7 +93,7 @@ func (v *Vector[T]) PopBack() {
 	var zero T
 	elementSize := unsafe.Sizeof(zero)
 	offset := uintptr(v.len) * elementSize
-	targetAddr := unsafe.Pointer(uintptr(v.ptr) + offset)
+	targetAddr := unsafe.Add(v.ptr, offset)
 	*(*T)(targetAddr) = zero
 }
 
@@ -104,6 +104,6 @@ func (v *Vector[T]) At(index uint64) T {
 	var zero T
 	elementSize := unsafe.Sizeof(zero)
 
-	targetAddr := unsafe.Pointer(uintptr(v.ptr) + (uintptr(index) * elementSize))
+	targetAddr := unsafe.Add(v.ptr, (uintptr(index) * elementSize))
 	return *(*T)(targetAddr)
 }
