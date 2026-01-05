@@ -12,7 +12,7 @@ type MinStack[T cmp.Ordered] struct {
 	data    []T
 }
 
-func New[T cmp.Ordered]() *MinStack[T] {
+func NewMinStack[T cmp.Ordered]() *MinStack[T] {
 	return &MinStack[T]{mindata: make([]T, 0), data: make([]T, 0)}
 }
 
