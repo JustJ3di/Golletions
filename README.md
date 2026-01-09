@@ -46,5 +46,6 @@ go get github.com/JustJ3di/Golletions
 - [x] Ziplist
 - [x] Vector
 - [x] MinStack (Thread-safe)
+- [x] Set
 
 ---
