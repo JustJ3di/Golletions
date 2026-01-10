@@ -2,6 +2,7 @@ package Set
 
 import (
 	"fmt"
+	"strings"
 	"sync"
 )
 
@@ -48,15 +49,16 @@ func (ms *mapset[T]) Len() int {
 
 func (ms *mapset[T]) String() string {
 
-	s := ""
+	var s strings.Builder
+	fmt.Fprint(&s, "{")
 	for key := range ms.s {
 
-		s += fmt.Sprint(key)
+		fmt.Fprint(&s, key, ",")
 	}
-	return s
+	fmt.Fprint(&s, "}")
+	return s.String()
 
 }
-
 func (ms *mapset[T]) Clear() {
 	ms.mu.Lock()
 	defer ms.mu.Unlock()
