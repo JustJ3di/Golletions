@@ -1,6 +1,7 @@
 package Set
 
 import (
+	"fmt"
 	"sync"
 )
 
@@ -8,6 +9,8 @@ type Set[T comparable] interface {
 	Add(T)
 	Contains(T) bool
 	Remove(T)
+	Len() int
+	String() string
 	Clear()
 }
 
@@ -37,6 +40,21 @@ func (ms *mapset[T]) Contains(element T) bool {
 	defer ms.mu.RUnlock()
 	_, found := ms.s[element]
 	return found
+}
+
+func (ms *mapset[T]) Len() int {
+	return len(ms.s)
+}
+
+func (ms *mapset[T]) String() string {
+
+	s := ""
+	for key := range ms.s {
+
+		s += fmt.Sprint(key)
+	}
+	return s
+
 }
 
 func (ms *mapset[T]) Clear() {
